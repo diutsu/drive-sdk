@@ -66,7 +66,7 @@ public abstract class DriveClient {
                 new StreamDataBodyPart("file", inputStream, filename, new MediaType(mediaType[0], mediaType[1]));
         try (final FormDataMultiPart formDataMultiPart = new FormDataMultiPart()) {
             final MultiPart entity = formDataMultiPart.bodyPart(streamDataBodyPart);
-            final String path = "/api/docs/directory/" + directory;
+            final String path = "/api/drive/directory/" + directory;
             target(path).post(Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE), String.class);
         } catch (final IOException e) {
             throw new Error(e);
@@ -107,7 +107,7 @@ public abstract class DriveClient {
      *             unable to fill in response
      */
     public void downloadFile(final String id, final HttpServletResponse response) throws IOException {
-        download("/api/docs/file/" + id + "/download", response);
+        download("/api/drive/file/" + id + "/download", response);
     }
 
     /**
@@ -120,7 +120,7 @@ public abstract class DriveClient {
      *             unable to fill in response
      */
     public void downloadDir(final String id, final HttpServletResponse response) throws IOException {
-        download("/api/docs/directory/" + id + "/download", response);
+        download("/api/drive/directory/" + id + "/download", response);
     }
 
     /**
@@ -132,7 +132,7 @@ public abstract class DriveClient {
      */
     public String createDirectory(final String parent, final String name) {
         final String putDir =
-                target("/api/docs/directory/" + parent).put(
+                target("/api/drive/directory/" + parent).put(
                         Entity.entity("{name: \"" + name + "\"}", MediaType.APPLICATION_JSON), String.class);
         final JsonObject o3 = new JsonParser().parse(putDir).getAsJsonObject();
         return o3.get("id").getAsString();
@@ -145,7 +145,7 @@ public abstract class DriveClient {
      * @return A JSON array with information of the contents of a directory
      */
     public JsonArray listDirectory(final String directory) {
-        final String post3 = target("/api/docs/directory/" + directory).get(String.class);
+        final String post3 = target("/api/drive/directory/" + directory).get(String.class);
         final JsonObject o3 = new JsonParser().parse(post3).getAsJsonObject();
         return o3.get("items").getAsJsonArray();
     }
@@ -156,7 +156,7 @@ public abstract class DriveClient {
      * @param directory ID of the directory to delete
      */
     public void deleteDirectory(final String directory) {
-        target("/api/docs/directory/" + directory).delete();
+        target("/api/drive/directory/" + directory).delete();
     }
 
     /**
@@ -165,7 +165,7 @@ public abstract class DriveClient {
      * @param file ID of the file to delete
      */
     public void deleteFile(final String file) {
-        target("/api/docs/file/" + file).delete();
+        target("/api/drive/file/" + file).delete();
     }
 
     protected Builder target(final String path) {
@@ -173,7 +173,8 @@ public abstract class DriveClient {
     }
 
     protected Builder target(final String path, final String token) {
-        return CLIENT.target(driveUrl() + path).queryParam("access_token", token).request();
+        return CLIENT.target(driveUrl() + path).queryParam("access_token", token).request()
+                .header("X-Requested-With", "XMLHttpRequest");
     }
 
     /**

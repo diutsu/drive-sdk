@@ -36,8 +36,8 @@ public class ConfigurationDriveClient extends DriveClient {
     @Override
     protected String accessToken() {
         final String refresh_token = getConfig().refreshToken();
-        final String path = "/api/docs/oauth/" + getConfig().clientAppId() + "/" + getConfig().clientAppUser();
-        final String post2 = target(path, refresh_token).get(String.class);
+        final String path = "/api/oauth/provider/" + getConfig().clientAppId() + "/" + getConfig().clientAppUser();
+        final String post2 = target(path, refresh_token).post(null, String.class);
         final JsonObject o2 = new JsonParser().parse(post2).getAsJsonObject();
         return o2.get("access_token").getAsString();
     }

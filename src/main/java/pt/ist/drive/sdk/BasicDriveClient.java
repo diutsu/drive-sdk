@@ -29,13 +29,13 @@ public class BasicDriveClient extends DriveClient {
 
     public BasicDriveClient(final String driveUrl, final String appId, final String appUser, final String refreshToken) {
         this.driveUrl = driveUrl;
-        this.tokenPath = "/api/docs/oauth/" + appId + "/" + appUser;
+        this.tokenPath = "/api/oauth/provider/" + appId + "/" + appUser;
         this.refreshToken = refreshToken;
     }
 
     @Override
     protected String accessToken() {
-        final String s = target(tokenPath, refreshToken).get(String.class);
+        final String s = target(tokenPath, refreshToken).post(null, String.class);
         final JsonObject o = new JsonParser().parse(s).getAsJsonObject();
         return o.get("access_token").getAsString();
     }
