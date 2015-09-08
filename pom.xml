@@ -24,7 +24,7 @@
     <dependencies>
         <dependency>
             <groupId>org.fenixedu</groupId>
-            <artifactId>bennu-server</artifactId>
+            <artifactId>bennu-core</artifactId>
             <version>${version.org.fenixedu.bennu}</version>
         </dependency>
         <dependency>
