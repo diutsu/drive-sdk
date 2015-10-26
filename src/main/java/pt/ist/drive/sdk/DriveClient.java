@@ -21,6 +21,7 @@ package pt.ist.drive.sdk;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +29,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -44,6 +46,7 @@ import com.google.gson.JsonParser;
 public abstract class DriveClient {
 
     protected static final Client CLIENT = ClientBuilder.newClient();
+
     static {
         CLIENT.register(MultiPartFeature.class);
     }
@@ -131,9 +134,8 @@ public abstract class DriveClient {
      * @return The ID of the created sub-directory
      */
     public String createDirectory(final String parent, final String name) {
-        final String putDir =
-                target("/api/drive/directory/" + parent).put(
-                        Entity.entity("{name: \"" + name + "\"}", MediaType.APPLICATION_JSON), String.class);
+        final String putDir = target("/api/drive/directory/" + parent)
+                .put(Entity.entity("{name: \"" + name + "\"}", MediaType.APPLICATION_JSON), String.class);
         final JsonObject o3 = new JsonParser().parse(putDir).getAsJsonObject();
         return o3.get("id").getAsString();
     }
@@ -172,9 +174,14 @@ public abstract class DriveClient {
         return target(path, accessToken());
     }
 
-    protected Builder target(final String path, final String token) {
-        return CLIENT.target(driveUrl() + path).queryParam("access_token", token).request()
-                .header("X-Requested-With", "XMLHttpRequest");
+    protected Builder target(final String path, final String token, final String... params) {
+        final WebTarget target = CLIENT.target(driveUrl() + path).queryParam("access_token", token);
+        return addParams(target, params).request().header("X-Requested-With", "XMLHttpRequest");
+    }
+
+    private WebTarget addParams(final WebTarget target, final String[] params) {
+        return params == null || params.length < 2 ? target
+                : addParams(target.queryParam(params[0], params[1]), Arrays.copyOfRange(params, 2, params.length));
     }
 
     /**
@@ -194,6 +201,18 @@ public abstract class DriveClient {
             }
         }
         return false;
+    }
+
+    /**
+     * Retrieve log information regarding the contents of a directory or file
+     * 
+     * @param directory or file ID of the directory to list
+     * @return A JSON array with log information of the directory or file
+     */
+    public JsonObject logs(final String directory, final int pageSize) {
+        final String post3 = target("/api/drive/directory/" + directory + "/logs", accessToken(),
+                "pageSize", Integer.toString(pageSize)).get(String.class);
+        return new JsonParser().parse(post3).getAsJsonObject();
     }
 
 }
