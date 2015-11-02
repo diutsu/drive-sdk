@@ -19,9 +19,9 @@
 package pt.ist.drive.sdk;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InputStream;import java.io.OutputStream;<<<<<<<Updated upstream
 import java.util.Arrays;
+import java.util.Objects;import java.util.UUID;>>>>>>>Stashed changes
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -63,14 +63,20 @@ public abstract class DriveClient {
      * @param inputStream input stream with the contents to be uploaded
      * @param contentType the type of the content being uploaded
      */
+    @Deprecated
     public void upload(final String directory, final String filename, final InputStream inputStream, final String contentType) {
+        uploadWithInfo(directory, filename, inputStream, contentType);
+    }
+
+    public JsonObject uploadWithInfo(final String directory, final String filename, final InputStream inputStream,
+            final String contentType) {
         final String[] mediaType = contentType.split("/");
         final StreamDataBodyPart streamDataBodyPart =
                 new StreamDataBodyPart("file", inputStream, filename, new MediaType(mediaType[0], mediaType[1]));
         try (final FormDataMultiPart formDataMultiPart = new FormDataMultiPart()) {
             final MultiPart entity = formDataMultiPart.bodyPart(streamDataBodyPart);
             final String path = "/api/drive/directory/" + directory;
-            target(path).post(Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE), String.class);
+            return target(path).post(Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE), JsonObject.class);
         } catch (final IOException e) {
             throw new Error(e);
         }
@@ -111,6 +117,18 @@ public abstract class DriveClient {
      */
     public void downloadFile(final String id, final HttpServletResponse response) throws IOException {
         download("/api/drive/file/" + id + "/download", response);
+    }
+
+    /**
+     * Download a document from your Drive installation and place it in an HTTP Response
+     * 
+     * @param documentUuid - unique identifier of the document
+     * @param response
+     * @throws IOException
+     */
+    public void downloadDocument(final UUID documentUuid, final HttpServletResponse response) throws IOException {
+        Objects.requireNonNull(documentUuid);
+        download("/api/drive/document/" + documentUuid.toString() + "/download", response);
     }
 
     /**
@@ -180,8 +198,8 @@ public abstract class DriveClient {
     }
 
     private WebTarget addParams(final WebTarget target, final String[] params) {
-        return params == null || params.length < 2 ? target
-                : addParams(target.queryParam(params[0], params[1]), Arrays.copyOfRange(params, 2, params.length));
+        return params == null || params.length < 2 ? target : addParams(target.queryParam(params[0], params[1]),
+                Arrays.copyOfRange(params, 2, params.length));
     }
 
     /**
@@ -210,8 +228,9 @@ public abstract class DriveClient {
      * @return A JSON array with log information of the directory or file
      */
     public JsonObject logs(final String directory, final int pageSize) {
-        final String post3 = target("/api/drive/directory/" + directory + "/logs", accessToken(),
-                "pageSize", Integer.toString(pageSize)).get(String.class);
+        final String post3 =
+                target("/api/drive/directory/" + directory + "/logs", accessToken(), "pageSize", Integer.toString(pageSize))
+                        .get(String.class);
         return new JsonParser().parse(post3).getAsJsonObject();
     }
 
