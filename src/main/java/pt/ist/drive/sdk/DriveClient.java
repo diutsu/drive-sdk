@@ -19,9 +19,11 @@
 package pt.ist.drive.sdk;
 
 import java.io.IOException;
-import java.io.InputStream;import java.io.OutputStream;<<<<<<<Updated upstream
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Objects;import java.util.UUID;>>>>>>>Stashed changes
+import java.util.Objects;
+import java.util.UUID;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
