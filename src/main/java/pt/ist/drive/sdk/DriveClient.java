@@ -35,6 +35,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.fenixedu.bennu.core.rest.JsonBodyReaderWriter;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -51,6 +52,7 @@ public abstract class DriveClient {
 
     static {
         CLIENT.register(MultiPartFeature.class);
+        CLIENT.register(JsonBodyReaderWriter.class);
     }
 
     protected abstract String accessToken();
