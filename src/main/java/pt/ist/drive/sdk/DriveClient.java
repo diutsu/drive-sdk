@@ -21,7 +21,9 @@ package pt.ist.drive.sdk;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -36,11 +38,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.fenixedu.bennu.core.rest.JsonBodyReaderWriter;
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
+import com.google.common.base.Joiner;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -169,9 +173,19 @@ public abstract class DriveClient {
      * @return A JSON array with information of the contents of a directory
      */
     public JsonArray listDirectory(final String directory) {
-        final String post3 = target("/api/drive/directory/" + directory).get(String.class);
-        final JsonObject o3 = new JsonParser().parse(post3).getAsJsonObject();
-        return o3.get("items").getAsJsonArray();
+        final String result = target("/api/drive/directory/" + directory).get(String.class);
+        final JsonObject parsedResult = new JsonParser().parse(result).getAsJsonObject();
+        return parsedResult.get("items").getAsJsonArray();
+    }
+    
+    public JsonObject getDirectoryWithSlug(final String... args) {
+        String path = "/api/drive/directory?slug=" + Joiner.on("/").join(args);
+        final String result = target(path).get(String.class);
+        return new JsonParser().parse(result).getAsJsonObject();
+    }
+    
+    public JsonObject getDirectoryWithSlug(final List<String> args) {
+        return getDirectoryWithSlug(args.toArray(new String[0]));
     }
 
     /**
