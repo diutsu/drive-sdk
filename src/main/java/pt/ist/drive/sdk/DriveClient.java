@@ -36,6 +36,7 @@ import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.fenixedu.bennu.core.rest.JsonBodyReaderWriter;
 import org.glassfish.jersey.filter.LoggingFilter;
@@ -91,7 +92,10 @@ public abstract class DriveClient {
     }
 
     private void download(final String path, final HttpServletResponse response) throws IOException {
-        final Response r = target(path).get();
+        Response r = target(path).get();
+        if(Status.TEMPORARY_REDIRECT.equals(Status.fromStatusCode(r.getStatus()))){
+            r = CLIENT.target(r.getLocation()).request().get();
+        }
         setHeader(response, r, "Content-Disposition");
         setHeader(response, r, "Date");
         setHeader(response, r, "Content-Type");
