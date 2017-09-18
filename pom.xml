@@ -17,7 +17,7 @@
     <name>FenixEdu Drive Client SDK</name>
 
     <properties>
-        <version.org.fenixedu.bennu>3.4.1</version.org.fenixedu.bennu>
+        <version.org.fenixedu.bennu>4.2.3</version.org.fenixedu.bennu>
         <version.org.glassfish.jersey>2.17</version.org.glassfish.jersey>
     </properties>
 
